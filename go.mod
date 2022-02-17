@@ -1,1 +1,3 @@
-module github.com/lenaten/hl7
+module github.com/synkwise/go-hl7-parser
+
+go 1.17

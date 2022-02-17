@@ -4,8 +4,6 @@ import (
 	"errors"
 	"os"
 	"testing"
-
-	"github.com/lenaten/hl7"
 )
 
 func TestAcknowledge(t *testing.T) {

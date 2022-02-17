@@ -3,8 +3,6 @@ package hl7_test
 import (
 	"os"
 	"testing"
-
-	"github.com/lenaten/hl7"
 )
 
 func TestDecode(t *testing.T) {

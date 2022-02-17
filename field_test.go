@@ -2,8 +2,6 @@ package hl7_test
 
 import (
 	"testing"
-
-	"github.com/lenaten/hl7"
 )
 
 func TestFieldParse(t *testing.T) {
