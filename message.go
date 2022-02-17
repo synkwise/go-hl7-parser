@@ -144,7 +144,7 @@ func (m *Message) Parse() error {
 		ii++
 		switch {
 		case ch == eof || (ch == endMsg && m.Delimeters.LFTermMsg):
-			if i >= cap(m.Value) || ii >= cap(m.Value) {
+			if i > cap(m.Value) || ii > cap(m.Value) {
 				return fmt.Errorf("unknown value. value: %s. i: %d. ii: %d", m.Value, i, ii)
 			}
 			v := m.Value[i:ii]
