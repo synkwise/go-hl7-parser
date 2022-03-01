@@ -2,6 +2,7 @@ package hl7_test
 
 import (
 	"errors"
+	hl7 "github.com/synkwise/go-hl7-parser"
 	"os"
 	"testing"
 )
@@ -32,6 +33,10 @@ func TestAcknowledge(t *testing.T) {
 	if ack == nil {
 		t.Fatal("Expected ACK message got nil")
 	}
+	if len(ack.Segments) != 2 {
+		t.Fatal("Required to be 2 segments. Got ", len(ack.Segments))
+	}
+
 	m := hl7.NewMsgInfo()
 	m.ReceivingApp = "ORG_REC_APP"
 	m.ReceivingFacility = "ORG_REC_FAC"

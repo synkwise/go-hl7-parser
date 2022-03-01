@@ -1,6 +1,7 @@
 package hl7_test
 
 import (
+	hl7 "github.com/synkwise/go-hl7-parser"
 	"testing"
 )
 
