@@ -7,6 +7,7 @@ import (
 
 // MsgInfo describes the basic message fields
 type MsgInfo struct {
+	Delimiters        string `hl7:"MSH.2"`
 	SendingApp        string `hl7:"MSH.3"`
 	SendingFacility   string `hl7:"MSH.4"`
 	ReceivingApp      string `hl7:"MSH.5"`
@@ -28,6 +29,7 @@ func NewMsgInfo() *MsgInfo {
 	info.MsgDate = t
 	info.ControlID = fmt.Sprintf("MSGID%s%d", t, now.Nanosecond())
 	info.ProcessingID = "P"
+	info.Delimiters = "^~\\&"
 	info.VersionID = "2.4"
 	return &info
 }
@@ -36,6 +38,7 @@ func NewMsgInfo() *MsgInfo {
 func NewMsgInfoAck(mi *MsgInfo) *MsgInfo {
 	info := NewMsgInfo()
 	info.MessageType = "ACK"
+	info.Delimiters = mi.Delimiters
 	info.ReceivingApp = mi.SendingApp
 	info.ReceivingFacility = mi.SendingFacility
 	info.SendingApp = mi.ReceivingApp
@@ -63,6 +66,9 @@ func StartMessage(info MsgInfo) (*Message, error) {
 	}
 	if info.VersionID == "" {
 		info.VersionID = "2.4"
+	}
+	if info.Delimiters == "" {
+		info.Delimiters = "^~\\&"
 	}
 	msg := NewMessage([]byte{})
 	Marshal(msg, &info)
