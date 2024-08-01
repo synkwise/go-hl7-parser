@@ -7,16 +7,15 @@ import (
 
 // MsgInfo describes the basic message fields
 type MsgInfo struct {
-	EncodingCharacters string `hl7:"MSH.2"`
-	SendingApp         string `hl7:"MSH.3"`
-	SendingFacility    string `hl7:"MSH.4"`
-	ReceivingApp       string `hl7:"MSH.5"`
-	ReceivingFacility  string `hl7:"MSH.6"`
-	MsgDate            string `hl7:"MSH.7"`  // if blank will generate
-	MessageType        string `hl7:"MSH.9"`  // Required example ORM^001
-	ControlID          string `hl7:"MSH.10"` // if blank will generate
-	ProcessingID       string `hl7:"MSH.11"` // default P
-	VersionID          string `hl7:"MSH.12"` // default 2.4
+	SendingApp        string `hl7:"MSH.3"`
+	SendingFacility   string `hl7:"MSH.4"`
+	ReceivingApp      string `hl7:"MSH.5"`
+	ReceivingFacility string `hl7:"MSH.6"`
+	MsgDate           string `hl7:"MSH.7"`  // if blank will generate
+	MessageType       string `hl7:"MSH.9"`  // Required example ORM^001
+	ControlID         string `hl7:"MSH.10"` // if blank will generate
+	ProcessingID      string `hl7:"MSH.11"` // default P
+	VersionID         string `hl7:"MSH.12"` // default 2.4
 }
 
 // NewMsgInfo returns a MsgInfo with controlID, message date, Processing Id, and Version set
@@ -29,7 +28,6 @@ func NewMsgInfo() *MsgInfo {
 	info.MsgDate = t
 	info.ControlID = fmt.Sprintf("MSGID%s%d", t, now.Nanosecond())
 	info.ProcessingID = "P"
-	info.EncodingCharacters = "^~\\&"
 	info.VersionID = "2.4"
 	return &info
 }
@@ -38,7 +36,6 @@ func NewMsgInfo() *MsgInfo {
 func NewMsgInfoAck(mi *MsgInfo) *MsgInfo {
 	info := NewMsgInfo()
 	info.MessageType = "ACK"
-	info.EncodingCharacters = mi.EncodingCharacters
 	info.ReceivingApp = mi.SendingApp
 	info.ReceivingFacility = mi.SendingFacility
 	info.SendingApp = mi.ReceivingApp
@@ -67,9 +64,7 @@ func StartMessage(info MsgInfo) (*Message, error) {
 	if info.VersionID == "" {
 		info.VersionID = "2.4"
 	}
-	if info.EncodingCharacters == "" {
-		info.EncodingCharacters = "^~\\&"
-	}
+
 	msg := NewMessage([]byte{})
 	Marshal(msg, &info)
 	return msg, nil
