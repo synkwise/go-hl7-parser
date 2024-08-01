@@ -7,12 +7,13 @@ import (
 
 // MsgInfo describes the basic message fields
 type MsgInfo struct {
-	EncodingCharacters string `hl7:"MSH.1.2"`
+	EncodingCharacters string `hl7:"MSH.2"`
 	SendingApp         string `hl7:"MSH.3"`
 	SendingFacility    string `hl7:"MSH.4"`
 	ReceivingApp       string `hl7:"MSH.5"`
 	ReceivingFacility  string `hl7:"MSH.6"`
 	MsgDate            string `hl7:"MSH.7"`  // if blank will generate
+	Security           string `hl7:"MSH.8"`  // if blank will generate
 	MessageType        string `hl7:"MSH.9"`  // Required example ORM^001
 	ControlID          string `hl7:"MSH.10"` // if blank will generate
 	ProcessingID       string `hl7:"MSH.11"` // default P

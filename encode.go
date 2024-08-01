@@ -4,7 +4,6 @@ import (
 	"errors"
 	"io"
 	"reflect"
-	"strings"
 )
 
 // Encoder writes hl7 messages to a stream
@@ -40,11 +39,6 @@ func (e *Encoder) Encode(it interface{}) error {
 func Marshal(m *Message, it interface{}) ([]byte, error) {
 	st := reflect.ValueOf(it).Elem()
 	stt := st.Type()
-
-	// Ensure MSH segment has the right number of fields initially
-	hl7Fields := make([]string, 13)
-	hl7Fields[0] = "MSH"
-	m.Value = []byte(strings.Join(hl7Fields, "|"))
 
 	for i := 0; i < st.NumField(); i++ {
 		fld := stt.Field(i)
