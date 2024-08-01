@@ -7,6 +7,7 @@ import (
 
 // MsgInfo describes the basic message fields
 type MsgInfo struct {
+	Name               string `hl7:"MSH.0"`
 	FieldSeparator     string `hl7:"MSH.1"`
 	EncodingCharacters string `hl7:"MSH.2"`
 	SendingApp         string `hl7:"MSH.3"`
@@ -39,6 +40,7 @@ func NewMsgInfo() *MsgInfo {
 // NewMsgInfoAck returns a MsgInfo ACK based on the MsgInfo passed in
 func NewMsgInfoAck(mi *MsgInfo) *MsgInfo {
 	info := NewMsgInfo()
+	info.Name = "MSH"
 	info.MessageType = "ACK"
 	info.EncodingCharacters = mi.EncodingCharacters
 	info.ReceivingApp = mi.SendingApp
