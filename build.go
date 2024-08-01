@@ -7,6 +7,7 @@ import (
 
 // MsgInfo describes the basic message fields
 type MsgInfo struct {
+	FieldSeparator     string `hl7:"MSH.1"`
 	EncodingCharacters string `hl7:"MSH.2"`
 	SendingApp         string `hl7:"MSH.3"`
 	SendingFacility    string `hl7:"MSH.4"`
