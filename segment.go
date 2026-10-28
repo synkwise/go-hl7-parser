@@ -35,15 +35,13 @@ func (s *Segment) Parse(seps *Delimeters) error {
 	ii := 0
 	seq := 0
 	for {
-		ch, _, _ := r.ReadRune()
-		ii++
+		ch, size, _ := r.ReadRune()
+		ii += size
 		switch {
 		case ch == eof || (ch == endMsg && seps.LFTermMsg):
-			if ii > i {
-				fld := Field{Value: s.Value[i : ii-1], SeqNum: seq}
-				fld.Parse(seps)
-				s.Fields = append(s.Fields, fld)
-			}
+			fld := Field{Value: s.Value[i : ii-size], SeqNum: seq}
+			fld.Parse(seps)
+			s.Fields = append(s.Fields, fld)
 			return nil
 		case isMSH && seq == 2 && ch == seps.Repetition:
 			// ignore repeat separator in separator definition
@@ -52,9 +50,9 @@ func (s *Segment) Parse(seps *Delimeters) error {
 		case ch == seps.Field:
 			if isMSH && seq == 2 {
 				// the separator list is a field in MSH seq 2
-				s.forceField([]byte(s.Value[i:ii-1]), seq)
+				s.forceField([]byte(s.Value[i:ii-size]), seq)
 			} else {
-				fld := Field{Value: s.Value[i : ii-1], SeqNum: seq}
+				fld := Field{Value: s.Value[i : ii-size], SeqNum: seq}
 				fld.Parse(seps)
 				s.Fields = append(s.Fields, fld)
 			}
@@ -66,13 +64,13 @@ func (s *Segment) Parse(seps *Delimeters) error {
 				seq++
 			}
 		case ch == seps.Repetition:
-			fld := Field{Value: s.Value[i : ii-1], SeqNum: seq}
+			fld := Field{Value: s.Value[i : ii-size], SeqNum: seq}
 			fld.Parse(seps)
 			s.Fields = append(s.Fields, fld)
 			i = ii
 		case ch == seps.Escape:
-			ii++
-			r.ReadRune()
+			_, escaped, _ := r.ReadRune()
+			ii += escaped
 		}
 	}
 }

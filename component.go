@@ -24,22 +24,20 @@ func (c *Component) Parse(seps *Delimeters) error {
 	i := 0
 	ii := 0
 	for {
-		ch, _, _ := r.ReadRune()
-		ii++
+		ch, size, _ := r.ReadRune()
+		ii += size
 		switch {
 		case ch == eof || (ch == endMsg && seps.LFTermMsg):
-			if ii > i {
-				scmp := SubComponent{Value: c.Value[i : ii-1]}
-				c.SubComponents = append(c.SubComponents, scmp)
-			}
+			scmp := SubComponent{Value: c.Value[i : ii-size]}
+			c.SubComponents = append(c.SubComponents, scmp)
 			return nil
 		case ch == seps.SubComponent:
-			scmp := SubComponent{Value: c.Value[i : ii-1]}
+			scmp := SubComponent{Value: c.Value[i : ii-size]}
 			c.SubComponents = append(c.SubComponents, scmp)
 			i = ii
 		case ch == seps.Escape:
-			ii++
-			r.ReadRune()
+			_, escaped, _ := r.ReadRune()
+			ii += escaped
 		}
 	}
 }

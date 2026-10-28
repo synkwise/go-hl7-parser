@@ -26,24 +26,22 @@ func (f *Field) Parse(seps *Delimeters) error {
 	i := 0
 	ii := 0
 	for {
-		ch, _, _ := r.ReadRune()
-		ii++
+		ch, size, _ := r.ReadRune()
+		ii += size
 		switch {
 		case ch == eof || (ch == endMsg && seps.LFTermMsg):
-			if ii > i {
-				cmp := Component{Value: f.Value[i : ii-1]}
-				cmp.Parse(seps)
-				f.Components = append(f.Components, cmp)
-			}
+			cmp := Component{Value: f.Value[i : ii-size]}
+			cmp.Parse(seps)
+			f.Components = append(f.Components, cmp)
 			return nil
 		case ch == seps.Component:
-			cmp := Component{Value: f.Value[i : ii-1]}
+			cmp := Component{Value: f.Value[i : ii-size]}
 			cmp.Parse(seps)
 			f.Components = append(f.Components, cmp)
 			i = ii
 		case ch == seps.Escape:
-			ii++
-			r.ReadRune()
+			_, escaped, _ := r.ReadRune()
+			ii += escaped
 		}
 	}
 }
