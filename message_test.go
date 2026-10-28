@@ -3,6 +3,7 @@ package hl7_test
 import (
 	hl7 "github.com/synkwise/go-hl7-parser"
 	"os"
+	"strings"
 	"testing"
 )
 
@@ -95,5 +96,75 @@ func TestMsgUnmarshal(t *testing.T) {
 	}
 	if st.LastName != "Jones" {
 		t.Errorf("Expected Jones got %s\n", st.LastName)
+	}
+}
+
+func sizedMessage(size int) []byte {
+	head := "MSH|^~\\&|A|B|C|D|20260101||ADT^A01|1|P|2.3\rPID|1||"
+	pad := strings.Repeat("X", size-len(head)-1)
+	return []byte(head + pad + "\r")
+}
+
+func TestParseFullBuffer(t *testing.T) {
+	for _, size := range []int{175, 176, 288, 320, 1024} {
+		data := sizedMessage(size)
+		msg := hl7.NewMessage(data[:size:size])
+		if err := msg.Parse(); err != nil {
+			t.Errorf("size %d: unexpected error: %v", size, err)
+			continue
+		}
+		if len(msg.Segments) != 2 {
+			t.Errorf("size %d: expected 2 segments got %d", size, len(msg.Segments))
+		}
+	}
+}
+
+func TestParseLastSegmentWithoutTerminator(t *testing.T) {
+	src := "MSH|^~\\&|A|B|C|D|20260101||ADT^A01|1|P|2.3\rPID|1||SMITH"
+	data := make([]byte, len(src), len(src)+4)
+	copy(data, src)
+	data[:cap(data)][len(data)] = '#'
+
+	msg := hl7.NewMessage(data)
+	if err := msg.Parse(); err != nil {
+		t.Fatal(err)
+	}
+	if len(msg.Segments) != 2 {
+		t.Fatalf("expected 2 segments got %d", len(msg.Segments))
+	}
+	if got := string(msg.Segments[1].Value); got != "PID|1||SMITH" {
+		t.Errorf("expected last segment %q got %q", "PID|1||SMITH", got)
+	}
+}
+
+func TestParseMultiByteCharacters(t *testing.T) {
+	src := "MSH|^~\\&|A|B|C|D|20260101||ADT^A01|1|P|2.3\rPID|1||MÜLLER&JÖ^ANNA|X\rPV1|1|I\r"
+	msg := hl7.NewMessage([]byte(src))
+	if err := msg.Parse(); err != nil {
+		t.Fatal(err)
+	}
+	if len(msg.Segments) != 3 {
+		t.Fatalf("expected 3 segments got %d", len(msg.Segments))
+	}
+	if got := string(msg.Segments[1].Value); got != "PID|1||MÜLLER&JÖ^ANNA|X\r" {
+		t.Errorf("unexpected PID segment %q", got)
+	}
+	if got := string(msg.Segments[2].Value); got != "PV1|1|I\r" {
+		t.Errorf("unexpected PV1 segment %q", got)
+	}
+
+	name := msg.Segments[1].Fields[3]
+	if got := string(name.Value); got != "MÜLLER&JÖ^ANNA" {
+		t.Fatalf("unexpected name field %q", got)
+	}
+	if len(name.Components) != 2 {
+		t.Fatalf("expected 2 components got %d", len(name.Components))
+	}
+	if got := string(name.Components[1].Value); got != "ANNA" {
+		t.Errorf("unexpected given name %q", got)
+	}
+	family := name.Components[0].SubComponents
+	if len(family) != 2 || string(family[0].Value) != "MÜLLER" || string(family[1].Value) != "JÖ" {
+		t.Errorf("unexpected family name subcomponents %q", family)
 	}
 }
